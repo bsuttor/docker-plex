@@ -1,0 +1,29 @@
+version: '3.5'
+services:
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    ports:
+      - 32400:32400
+    volumes:
+      - ./config:/config
+      - ./movies:/data/movies
+      - ./series:/data/series
+      - ./transcode:/transcode
+    hostname: "plex"
+    environment:
+      - TZ=Europe/Brussels
+      - PLEX_CLAIM=CLAIM-XXXXXXXX
+    healthcheck:
+      disable: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.rule=Host(`my.plex.be`)"
+      - "traefik.http.routers.plex.entrypoints=websecure"
+      - "traefik.http.routers.plex.tls.certresolver=mytlsChallenge"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
+
+networks:
+  default:
+    external:
+      name: proxy
